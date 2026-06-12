@@ -1,6 +1,6 @@
 # BuildIt 🔧
 
-**Live at [buildit-production-0e15.up.railway.app](https://buildit-production-0e15.up.railway.app)**
+**Live at [buildit-web-production.up.railway.app](https://buildit-web-production.up.railway.app)**
 
 AI-powered K-12 STEM project generator. Students enter their grade, interests, budget, and available time, and BuildIt generates personalized, safe, hands-on maker projects — complete with step-by-step teaching instructions, a shopping list, an AI build mentor, and a community gallery.
 
