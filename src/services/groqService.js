@@ -33,6 +33,35 @@ const STEM_LABELS = {
   environmental: 'Environmental Science', electronics: 'Electronics',
 };
 
+// Challenge tier by grade band — injected into the generation prompt so
+// project ambition scales with age instead of defaulting to easy builds
+function gradeTier(grade) {
+  const g = String(grade);
+  if (['9', '10', '11', '12', '912'].includes(g)) return 'high';
+  if (['6', '7', '8', '68'].includes(g)) return 'middle';
+  if (['3', '4', '5', '35'].includes(g)) return 'upper';
+  return 'lower';
+}
+
+const TIER_RULES = {
+  lower: {
+    steps: 6,
+    note: 'This is a young student (K–2): keep builds simple, single-concept, and quick to assemble — success within the first session matters most.',
+  },
+  upper: {
+    steps: 6,
+    note: 'This student is in upper elementary (3–5): builds should have a few interacting parts and at least one moment where they tweak or adjust something to make it work better.',
+  },
+  middle: {
+    steps: 7,
+    note: 'This is a middle schooler (6–8): do NOT suggest simple crafts. Every project needs a real engineering or experimental challenge — a mechanism with multiple interacting parts, a variable to measure and tune, or a design they must iterate on when the first attempt underperforms. It should take genuine problem-solving to get working well.',
+  },
+  high: {
+    steps: 8,
+    note: 'This is a high schooler (9–12): projects must be genuinely challenging — multi-system builds, quantitative measurement and analysis (collect real data, calculate something meaningful from it), optimization across trade-offs, or battery-powered breadboard electronics where relevant. A project an elementary student could complete is an automatic failure. The student should expect their first attempt to need debugging and iteration, and the finished result should be impressive enough to show off.',
+  },
+};
+
 function resolveLang(language) {
   if (!language || language === 'en' || language === 'English') return 'English';
   const lower = language.toLowerCase();
@@ -77,6 +106,7 @@ export async function generateProjects(studentData, language) {
   const budgetLabel = BUDGET_LABELS[budget] || budget;
   const timeLabel = TIME_LABELS[timeAvailable] || timeAvailable;
   const stemLabels = stemInterests.map((k) => STEM_LABELS[k] || k).join(', ');
+  const tier = TIER_RULES[gradeTier(grade)];
   const complexityNote = completedCount > 0
     ? `${complexity} (student has completed ${completedCount} project(s), increase challenge slightly)`
     : complexity;
@@ -86,16 +116,16 @@ export async function generateProjects(studentData, language) {
 FEASIBILITY RULES — apply to every project, every grade level:
 1. Every project must be 100% completable within the stated time and budget by a single student working alone at home.
 2. The finished project must produce a REAL, TANGIBLE, SATISFYING outcome the student can hold, show, or demonstrate — not "a report", not "a presentation", not "a design document". Something physical or interactive that actually works.
-3. For 9th–12th grade: increase depth of STEM understanding and creative challenge — NOT complexity of materials or number of steps. A smart high-school project is an elegant project, not a complicated one. It should feel impressive because of the insight behind it, not because it requires rare equipment.
+3. Scale ambition to the grade band. Younger students get simple, fast wins. Older students (6–12) get projects with real engineering challenge: multiple interacting parts, variables to measure and tune, designs that need iteration to work well. A high schooler must never receive a project an 8-year-old could finish — complexity of thinking AND complexity of build should both grow with grade.
 4. Never suggest projects that require lab equipment, school/makerspace facilities, industrial tools, or specialized software licenses to complete.
-5. Every project must feel exciting and achievable — if a student reads it and thinks "I can actually make this today", that's the right level.
+5. Every project must feel exciting and achievable for that grade — for younger students, "I can make this today"; for older students, "this will push me, and it'll be impressive when it works".
 
 SAFETY RULES — non-negotiable, apply to every project:
 1. NEVER require disassembling any electronic device, appliance, charger, toy, or gadget to extract components (no "remove wire from charger", "salvage LED from old toy", "strip cable", etc.).
 2. NEVER involve mains/wall electricity, soldering, open flames, strong acids, bleach, or other hazardous chemicals.
 3. All materials must be either (a) common household items students already have — cardboard, paper, tape, glue sticks, rubber bands, string, aluminum foil, plastic bottles, craft sticks, food items, fabric scraps, felt, scissors — OR (b) inexpensive store-bought components listed with where to buy and the approximate cost (e.g. "9V battery — craft or dollar store, ~$2").
 4. If a project genuinely benefits from a small electronic component (LED, buzzer, small motor), list it as PURCHASE ONLY with store type and price — never as something to extract from an existing device.
-5. No tools beyond regular scissors, a ruler, and a hole punch. No X-Acto knives for grades K-8.
+5. Tools scale with age: grades K–5 use only regular scissors, a ruler, and a hole punch. Grades 6–8 may also use a low-temp hot glue gun and a screwdriver. Grades 9–12 may additionally use an X-Acto/craft knife, a multimeter, and battery-powered breadboard electronics (jumper wires, resistors, sensors — still NO soldering and NO mains power, ever).
 
 HOW TO WRITE STEPS — this determines quality:
 Each step is a natural, flowing paragraph of 90-130 words. Write like a knowledgeable older student sitting right next to them, guiding every single move. Rules:
@@ -132,8 +162,8 @@ Requirements:
 - SAFETY: follow all SAFETY RULES — household items only or clearly labeled purchasable items; NEVER disassembling devices
 - Materials must be exact and specific (e.g. "2 AA batteries — dollar store, ~$2" or "30cm × 10cm cardboard piece from any cereal box")
 - If a material needs to be purchased, append "— [store type], ~$[price]" to the item name
-- Steps must follow the HOW TO WRITE STEPS rules above — 6 detailed teaching paragraphs per project, no vague bullets
-- For higher grades (6–12): make projects feel sophisticated through the science behind them, not through complexity of execution
+- Steps must follow the HOW TO WRITE STEPS rules above — exactly ${tier.steps} detailed teaching paragraphs per project, no vague bullets
+- CHALLENGE LEVEL: ${tier.note}
 
 Return this exact JSON (no extra fields, no markdown):
 {
@@ -152,11 +182,7 @@ Return this exact JSON (no extra fields, no markdown):
       ],
       "steps": [
         "Step 1 – [Short descriptive title]: [Full natural teaching paragraph — specific action + embedded explanation + analogy or example + natural success observation. No labels. 90-130 words.]",
-        "Step 2 – [Short descriptive title]: ...",
-        "Step 3 – [Short descriptive title]: ...",
-        "Step 4 – [Short descriptive title]: ...",
-        "Step 5 – [Short descriptive title]: ...",
-        "Step 6 – [Short descriptive title]: ..."
+${Array.from({ length: tier.steps - 1 }, (_, i) => `        "Step ${i + 2} – [Short descriptive title]: ..."`).join(',\n')}
       ],
       "levelUp": "One sentence challenge that meaningfully extends or remixes the project",
       "estimatedCost": "$X–$X",
@@ -275,6 +301,7 @@ Respond ONLY in ${lang} — do not use any other language. Be warm, specific, an
 export async function generateFromMaterials(imageBase64 = null, textDescription = '', studentData, language) {  const lang = resolveLang(language);
   const gradeLabel = GRADE_LABELS[studentData?.grade] || 'student';
   const name = studentData?.name || 'the student';
+  const tier = TIER_RULES[gradeTier(studentData?.grade)];
 
   let materialsList = textDescription.trim();
 
@@ -325,8 +352,9 @@ LANGUAGE: Write every single word of your JSON output in ${lang}. Do not mix in 
           content: `Generate exactly 3 creative STEM projects using ONLY these materials: ${materialsList}
 
 Student: ${name}, Grade: ${gradeLabel}
+CHALLENGE LEVEL: ${tier.note}
 
-Return this JSON (steps must be detailed, natural teaching paragraphs — no label patterns):
+Return this JSON (exactly ${tier.steps} steps per project — detailed, natural teaching paragraphs, no label patterns):
 {
   "detectedMaterials": ["material1", "material2"],
   "projects": [
@@ -338,11 +366,7 @@ Return this JSON (steps must be detailed, natural teaching paragraphs — no lab
       "shoppingList": [],
       "steps": [
         "Step 1 – [Short descriptive title]: [Full natural teaching paragraph — specific action, embedded explanation, analogy or example, natural success observation. No labels. 90-130 words.]",
-        "Step 2 – [Short descriptive title]: ...",
-        "Step 3 – [Short descriptive title]: ...",
-        "Step 4 – [Short descriptive title]: ...",
-        "Step 5 – [Short descriptive title]: ...",
-        "Step 6 – [Short descriptive title]: ..."
+${Array.from({ length: tier.steps - 1 }, (_, i) => `        "Step ${i + 2} – [Short descriptive title]: ..."`).join(',\n')}
       ],
       "levelUp": "Challenge extension that meaningfully extends or remixes the project",
       "estimatedCost": "$0",
