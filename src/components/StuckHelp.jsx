@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getStepHelp } from '../services/claudeService';
+import { getStepHelp } from '../services/groqService';
 import { fileToDataUrl, resizeImageToBase64 } from '../utils/imageUtils';
 
 export function StuckHelp({ step, stepIndex, project, language, onClose }) {
@@ -29,10 +29,12 @@ export function StuckHelp({ step, stepIndex, project, language, onClose }) {
   const handlePhoto = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await fileToDataUrl(file);
-    const base64 = await resizeImageToBase64(dataUrl);
-    setPhoto({ dataUrl, base64 });
-    fetchHelp(base64);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const base64 = await resizeImageToBase64(dataUrl);
+      setPhoto({ dataUrl, base64 });
+      fetchHelp(base64);
+    } catch { /* unreadable image — keep the text-only help flow */ }
     e.target.value = '';
   };
 

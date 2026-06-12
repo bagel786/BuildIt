@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { createPost } from '../services/communityService';
-import { moderateContent } from '../services/claudeService';
+import { moderateContent } from '../services/groqService';
 import { fileToDataUrl, resizeImageToBase64 } from '../utils/imageUtils';
 import { translations, uiLang } from '../i18n/translations';
 
@@ -23,9 +23,13 @@ export function ShareToGallery({ project, defaultPhoto, language = 'en', onPoste
   const handlePhoto = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await fileToDataUrl(file);
-    const base64  = await resizeImageToBase64(dataUrl);
-    setPhoto({ dataUrl, base64 });
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const base64  = await resizeImageToBase64(dataUrl);
+      setPhoto({ dataUrl, base64 });
+    } catch {
+      setError(sh.errorPost);
+    }
     e.target.value = '';
   };
 

@@ -1,5 +1,9 @@
 import Groq from 'groq-sdk';
 
+const TEXT_MODEL = 'llama-3.3-70b-versatile';
+// Groq decommissioned the llama-3.2 vision previews; Llama 4 Scout is the supported multimodal model
+const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+
 const GRADE_LABELS = {
   k: 'Kindergarten',
   '1': '1st Grade', '2': '2nd Grade', '3': '3rd Grade', '4': '4th Grade',
@@ -43,6 +47,12 @@ function getClient() {
   const apiKey = import.meta.env.VITE_GROQ_API_KEY;
   if (!apiKey) throw new Error('API_KEY_MISSING');
   return new Groq({ apiKey, dangerouslyAllowBrowser: true });
+}
+
+function newProjectId() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `proj-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 function wrapError(err) {
@@ -161,7 +171,7 @@ shoppingList rules:
 
   try {
     const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: TEXT_MODEL,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
       temperature: 0.9,
       max_tokens: 8000,
@@ -180,7 +190,38 @@ shoppingList rules:
     }
 
     if (!parsed.projects?.length) throw new Error('PARSE_ERROR');
-    return parsed.projects;
+    return parsed.projects.map((p) => ({ ...p, id: newProjectId() }));
+  } catch (err) {
+    if (err.message === 'PARSE_ERROR') throw err;
+    throw wrapError(err);
+  }
+}
+
+// ── Translate existing projects to another language (preserves ids) ─────────
+export async function translateProjects(projects, language) {
+  const client = getClient();
+  const lang = resolveLang(language);
+  const stripped = projects.map(({ id, savedAt, ...rest }) => rest);
+
+  try {
+    const completion = await client.chat.completions.create({
+      model: TEXT_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a professional translator. Translate every human-readable string value in the JSON the user provides into ${lang}. Keep the JSON structure, keys, and array lengths exactly the same. Do not translate keys, URLs, or the "searchQuery" / "youtubeSearchQuery" values (keep those in English so search still works). Keep numbers, prices, and measurements unchanged. Output ONLY the raw translated JSON object — no markdown, no commentary.`,
+        },
+        { role: 'user', content: JSON.stringify({ projects: stripped }) },
+      ],
+      response_format: { type: 'json_object' },
+      max_tokens: 8000,
+      temperature: 0.2,
+    });
+
+    const parsed = JSON.parse(completion.choices[0].message.content);
+    if (!parsed.projects?.length || parsed.projects.length !== projects.length) throw new Error('PARSE_ERROR');
+    // reattach original ids so saved/completed state survives translation
+    return parsed.projects.map((p, i) => ({ ...projects[i], ...p, id: projects[i].id }));
   } catch (err) {
     if (err.message === 'PARSE_ERROR') throw err;
     throw wrapError(err);
@@ -218,7 +259,7 @@ Respond ONLY in ${lang} — do not use any other language. Be warm, specific, an
 
   try {
     const completion = await client.chat.completions.create({
-      model: useVision ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile',
+      model: useVision ? VISION_MODEL : TEXT_MODEL,
       messages: groqMessages,
       max_tokens: 512,
       temperature: 0.7,
@@ -242,7 +283,7 @@ export async function generateFromMaterials(imageBase64 = null, textDescription 
   if (imageBase64) {
     try {
       const vision = await client.chat.completions.create({
-        model: 'llama-3.2-11b-vision-preview',
+        model: VISION_MODEL,
         messages: [{
           role: 'user',
           content: [
@@ -265,7 +306,7 @@ export async function generateFromMaterials(imageBase64 = null, textDescription 
   // Step 2: generate projects from identified materials
   try {
     const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: TEXT_MODEL,
       messages: [
         {
           role: 'system',
@@ -322,7 +363,7 @@ Return this JSON (steps must be detailed, natural teaching paragraphs — no lab
     const parsed = JSON.parse(completion.choices[0].message.content);
     return {
       detectedMaterials: parsed.detectedMaterials || materialsList.split(',').map(s => s.trim()),
-      projects: parsed.projects || [],
+      projects: (parsed.projects || []).map((p) => ({ ...p, id: newProjectId() })),
     };
   } catch (err) {
     throw wrapError(err);
@@ -335,7 +376,7 @@ export async function explainConcept(concept, gradeLabel, language) {
   const lang = resolveLang(language);
   try {
     const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: TEXT_MODEL,
       messages: [{
         role: 'user',
         content: `Explain the STEM concept "${concept}" for a ${gradeLabel} student. Write ENTIRELY in ${lang} — do not use any other language. Return ONLY this JSON:
@@ -366,7 +407,7 @@ export async function getStepHelp(step, stepIndex, project, language, imageBase6
     : `I'm stuck on step ${stepIndex + 1}: "${step}". Give me one clear, simple tip to get unstuck. Be specific and encouraging.`;
   try {
     const completion = await client.chat.completions.create({
-      model: useVision ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile',
+      model: useVision ? VISION_MODEL : TEXT_MODEL,
       messages: [
         { role: 'system', content: `You are a hands-on STEM mentor. Student is building "${project.title}". Materials: ${project.materials.join(', ')}. Be specific, warm, max 4 sentences. Respond ONLY in ${lang} — do not use any other language.` },
         { role: 'user', content: userContent },
@@ -384,7 +425,7 @@ export async function generateReflection(answers, project, language) {
   const lang = resolveLang(language);
   try {
     const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: TEXT_MODEL,
       messages: [{
         role: 'user',
         content: `A student finished building "${project.title}" (concepts: ${project.stemConcepts?.join(', ')}).
@@ -414,7 +455,7 @@ export async function moderateContent(caption, projectTitle) {
   const client = getClient();
   try {
     const completion = await client.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: TEXT_MODEL,
       messages: [{
         role: 'user',
         content: `Moderate this K-12 student community post (ages 5-18):

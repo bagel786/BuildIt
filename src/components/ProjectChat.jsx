@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { chatWithMentor } from '../services/claudeService';
+import { chatWithMentor } from '../services/groqService';
 import { fileToDataUrl, resizeImageToBase64 } from '../utils/imageUtils';
 
 export function ProjectChat({ project, language, onClose }) {
@@ -23,9 +23,13 @@ export function ProjectChat({ project, language, onClose }) {
   const handleImagePick = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await fileToDataUrl(file);
-    const base64 = await resizeImageToBase64(dataUrl);
-    setPendingImage({ dataUrl, base64 });
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const base64 = await resizeImageToBase64(dataUrl);
+      setPendingImage({ dataUrl, base64 });
+    } catch {
+      setError('Could not read that image. Try a different photo.');
+    }
     e.target.value = '';
   };
 
@@ -49,7 +53,7 @@ export function ProjectChat({ project, language, onClose }) {
     try {
       const reply = await chatWithMentor(newHistory, project, userMsg.image, language);
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Try again.');
     } finally {
       setLoading(false);

@@ -45,9 +45,11 @@ export function BuildMode({ project, language, studentName, onComplete, onClose,
   const handlePhoto = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await fileToDataUrl(file);
-    const base64  = await resizeImageToBase64(dataUrl);
-    setPhotos(prev => ({ ...prev, [step]: { dataUrl, base64 } }));
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const base64  = await resizeImageToBase64(dataUrl);
+      setPhotos(prev => ({ ...prev, [step]: { dataUrl, base64 } }));
+    } catch { /* unreadable image — leave the step photo empty */ }
     e.target.value = '';
   };
 

@@ -7,6 +7,16 @@ const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
 const supabase = USE_SUPABASE ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 const STORAGE_KEY = 'buildit-community';
+const LIKED_KEY = 'buildit-liked'; // post ids this browser has liked (dedup for the Supabase path)
+
+function loadLikedSet() {
+  try { return new Set(JSON.parse(localStorage.getItem(LIKED_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+
+function saveLikedSet(set) {
+  try { localStorage.setItem(LIKED_KEY, JSON.stringify([...set])); } catch {}
+}
 
 const SEED_POSTS = [
   { id: 'seed-1', studentName: 'Maya R.', projectTitle: 'Soccer-Powered Catapult', category: 'engineering', caption: 'Mine launched a paper ball over 2 meters! Adjusting the rubber band tension was the key 🎯 Took 3 tries to get it right.', photo: null, likes: 23, likedBy: [], createdAt: Date.now() - 2 * 86400000 },
@@ -41,6 +51,8 @@ export async function fetchPosts(category = 'all') {
     if (category !== 'all') query = query.eq('category', category);
     const { data, error } = await query;
     if (error) throw error;
+    const liked = loadLikedSet();
+    const sessionId = localStorage.getItem('buildit-session');
     return data.map(p => ({
       id: p.id,
       studentName: p.student_name,
@@ -49,7 +61,7 @@ export async function fetchPosts(category = 'all') {
       caption: p.caption,
       photo: p.photo_url,
       likes: p.likes,
-      likedBy: [],
+      likedBy: liked.has(p.id) && sessionId ? [sessionId] : [],
       createdAt: new Date(p.created_at).getTime(),
     }));
   }
@@ -65,7 +77,7 @@ export async function createPost({ studentName, projectTitle, category, caption,
     if (photo) {
       const filename = `${Date.now()}.jpg`;
       const blob = await (await fetch(`data:image/jpeg;base64,${photo}`)).blob();
-      const { data: upload, error: uploadErr } = await supabase.storage
+      const { error: uploadErr } = await supabase.storage
         .from('community-photos')
         .upload(filename, blob, { contentType: 'image/jpeg' });
       if (!uploadErr) {
@@ -104,8 +116,14 @@ export async function createPost({ studentName, projectTitle, category, caption,
 
 export async function toggleLike(postId, sessionId) {
   if (USE_SUPABASE) {
+    const liked = loadLikedSet();
+    const alreadyLiked = liked.has(postId);
     const { data: post } = await supabase.from('community_posts').select('likes').eq('id', postId).single();
-    await supabase.from('community_posts').update({ likes: (post?.likes || 0) + 1 }).eq('id', postId);
+    const nextLikes = Math.max(0, (post?.likes || 0) + (alreadyLiked ? -1 : 1));
+    const { error } = await supabase.from('community_posts').update({ likes: nextLikes }).eq('id', postId);
+    if (error) throw error;
+    if (alreadyLiked) liked.delete(postId); else liked.add(postId);
+    saveLikedSet(liked);
     return;
   }
 

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { generateFromMaterials } from '../services/claudeService';
+import { generateFromMaterials } from '../services/groqService';
 import { fileToDataUrl, resizeImageToBase64 } from '../utils/imageUtils';
 
 export function MaterialsScanner({ studentData, language, onProjectsGenerated, onClose }) {
@@ -13,9 +13,13 @@ export function MaterialsScanner({ studentData, language, onProjectsGenerated, o
     const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
-    const dataUrl = await fileToDataUrl(file);
-    const base64 = await resizeImageToBase64(dataUrl);
-    setImage({ dataUrl, base64 });
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const base64 = await resizeImageToBase64(dataUrl);
+      setImage({ dataUrl, base64 });
+    } catch {
+      setError('Could not read that image. Try a different photo.');
+    }
     e.target.value = '';
   };
 

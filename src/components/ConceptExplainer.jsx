@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { explainConcept } from '../services/claudeService';
+import { explainConcept } from '../services/groqService';
 
 const GRADE_LABELS = {
   k2: 'K through 2nd Grade', '35': '3rd through 5th Grade',

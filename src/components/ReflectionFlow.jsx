@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { generateReflection } from '../services/claudeService';
+import { generateReflection } from '../services/groqService';
 import { translations, uiLang } from '../i18n/translations';
 
 const CATEGORY_COLORS = {

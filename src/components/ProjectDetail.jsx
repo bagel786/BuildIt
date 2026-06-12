@@ -52,7 +52,7 @@ export function ProjectDetail({
   const handleSave = () => { setLiked(l => !l); onSave(project); };
 
   const handleStartBuild = () => {
-    onMarkStarted?.(project.title);
+    onMarkStarted?.(project);
     setBuildOpen(true);
   };
 

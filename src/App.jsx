@@ -7,7 +7,7 @@ import { SavedProjects } from './components/SavedProjects';
 import { MaterialsScanner } from './components/MaterialsScanner';
 import { Community } from './components/Community';
 import { ProjectDetail } from './components/ProjectDetail';
-import { generateProjects } from './services/claudeService';
+import { generateProjects, translateProjects } from './services/groqService';
 import { translations, uiLang } from './i18n/translations';
 
 function loadJson(key, fallback) {
@@ -48,23 +48,34 @@ export default function App() {
   useEffect(() => { localStorage.setItem('buildit-inprogress', JSON.stringify(inProgressTitles)); }, [inProgressTitles]);
   useEffect(() => { localStorage.setItem('buildit-lang', JSON.stringify(language)); }, [language]);
 
-  // Re-generate projects when language is toggled and projects already exist
+  // Translate the existing projects in place when language is toggled
   useEffect(() => {
     if (!didMount.current) { didMount.current = true; return; }
-    if (!studentData || !projects.length) return;
+    if (!projects.length) return;
     if (language === projectsLanguage) return;
-    const returnView = view === 'project-detail' ? detailReturnView : view;
+    const wasDetail = view === 'project-detail';
+    const returnView = wasDetail ? detailReturnView : view;
+    const activeId = activeProject?.id;
     setView('translating');
-    generateProjects({ ...studentData, completedCount: completedTitles.length }, language)
+    translateProjects(projects, language)
       .then((result) => {
         setProjects(result);
         setProjectsLanguage(language);
-        setActiveProject(null);
-        setView(['results', 'translating'].includes(returnView) ? 'results' : returnView);
+        const nextActive = activeId ? result.find((p) => p.id === activeId) : null;
+        setActiveProject(nextActive || null);
+        if (wasDetail && nextActive) {
+          setView('project-detail');
+        } else {
+          setView(['results', 'translating'].includes(returnView) ? 'results' : returnView);
+        }
       })
-      .catch(() => setView(returnView === 'translating' ? 'results' : returnView));
+      .catch(() => setView(wasDetail ? 'project-detail' : returnView === 'translating' ? 'results' : returnView));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
+
+  // Projects generated before ids existed (old localStorage data) fall back to title
+  const projectKey = (p) => p.id || p.title;
+  const sameProject = (a, b) => (a.id && b.id ? a.id === b.id : a.title === b.title);
 
   const handleSubmit = async (formData) => {
     setStudentData(formData);
@@ -92,24 +103,26 @@ export default function App() {
 
   const handleSaveProject = (project) => {
     setSavedProjects((prev) => {
-      const already = prev.some((p) => p.title === project.title);
+      const already = prev.some((p) => sameProject(p, project));
       return already
-        ? prev.filter((p) => p.title !== project.title)
+        ? prev.filter((p) => !sameProject(p, project))
         : [...prev, { ...project, savedAt: Date.now() }];
     });
   };
 
   const handleMarkComplete = (project) => {
     setCompletedTitles((prev) => {
-      if (prev.includes(project.title)) return prev;
-      return [...prev, project.title];
+      const key = projectKey(project);
+      if (prev.includes(key)) return prev;
+      return [...prev, key];
     });
   };
 
-  const handleMarkStarted = (title) => {
+  const handleMarkStarted = (project) => {
     setInProgressTitles((prev) => {
-      if (prev.includes(title)) return prev;
-      return [...prev, title];
+      const key = projectKey(project);
+      if (prev.includes(key)) return prev;
+      return [...prev, key];
     });
   };
 
@@ -124,9 +137,9 @@ export default function App() {
     setView(detailReturnView);
   };
 
-  const isSaved = (project) => savedProjects.some((p) => p.title === project.title);
-  const isCompleted = (project) => completedTitles.includes(project.title);
-  const isInProgress = (project) => inProgressTitles.includes(project.title);
+  const isSaved = (project) => savedProjects.some((p) => sameProject(p, project));
+  const isCompleted = (project) => completedTitles.includes(projectKey(project)) || completedTitles.includes(project.title);
+  const isInProgress = (project) => inProgressTitles.includes(projectKey(project)) || inProgressTitles.includes(project.title);
 
   const toggleLanguage = () => {
     const next = language === 'English' ? (studentLanguage || 'English') : 'English';
