@@ -31,6 +31,7 @@ export function IntakeForm({ language, onLanguageChange, onSubmit, error, onScan
   // Build time/budget option arrays from translations so they always match the active language
   const TIME_OPTIONS = Object.entries(f.timeAvailable.options).map(([value, label]) => ({ value, label }));
   const BUDGET_OPTIONS = Object.entries(f.budget.options).map(([value, label]) => ({ value, label }));
+  const COMPLEXITY_OPTIONS = Object.entries(f.complexity.options).map(([value, label]) => ({ value, label }));
 
   const [form, setForm] = useState(INITIAL_FORM);
   const [touched, setTouched] = useState({});
@@ -224,7 +225,7 @@ export function IntakeForm({ language, onLanguageChange, onSubmit, error, onScan
           <h3 className="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-2">
             {f.logisticsTitle}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="block font-body-lg text-body-lg font-bold text-on-surface" htmlFor="time">
                 {f.timeAvailable.label}
@@ -251,6 +252,21 @@ export function IntakeForm({ language, onLanguageChange, onSubmit, error, onScan
                 className="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-0 outline-none appearance-none cursor-pointer"
               >
                 {BUDGET_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="block font-body-lg text-body-lg font-bold text-on-surface" htmlFor="complexity">
+                {f.complexity.label}
+              </label>
+              <select
+                id="complexity"
+                value={form.complexity}
+                onChange={(e) => setForm((p) => ({ ...p, complexity: e.target.value }))}
+                className="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-xl px-4 py-3 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-0 outline-none appearance-none cursor-pointer"
+              >
+                {COMPLEXITY_OPTIONS.map(({ value, label }) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
               </select>
