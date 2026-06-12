@@ -115,7 +115,7 @@ export function IntakeForm({ language, onLanguageChange, onSubmit, error, onScan
             <input
               id="lang"
               type="text"
-              value={language === 'English' || language === 'en' ? '' : language}
+              value={language === 'English' ? '' : language}
               onChange={(e) => onLanguageChange(e.target.value || 'English')}
               placeholder={f.languagePlaceholder}
               className="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-xl pl-12 pr-4 py-4 font-body-lg text-body-lg text-on-surface focus:border-primary focus:ring-0 transition-colors shadow-sm outline-none placeholder:text-outline"
