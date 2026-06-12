@@ -17,10 +17,11 @@ AI-powered K-12 STEM project generator. Students enter their grade, interests, b
 ```bash
 npm install
 cp .env.example .env   # then add your Groq API key
-npm run dev
+npm run server         # Express server: Groq proxy on :8787
+npm run dev            # Vite dev server (proxies /api to :8787) — in a second terminal
 ```
 
-Get a Groq API key at [console.groq.com/keys](https://console.groq.com/keys).
+Get a Groq API key at [console.groq.com/keys](https://console.groq.com/keys). The key lives in `GROQ_API_KEY` (server-side only) — all Groq calls go through `server.js`, so the key never reaches the browser.
 
 ### Optional: Supabase community backend
 
@@ -33,15 +34,23 @@ Without Supabase the community gallery persists to localStorage. To enable a sha
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Start the Vite dev server |
+| `npm run dev` | Start the Vite dev server (frontend) |
+| `npm run server` | Start the Express server (Groq proxy) with watch mode |
 | `npm run build` | Production build to `dist/` |
+| `npm run start` | Serve `dist/` + API proxy (production / Railway) |
 | `npm run preview` | Preview the production build |
 | `npm run lint` | Run ESLint over `src/` |
 
 ## Stack
 
-React 18 · Vite · Tailwind CSS · Groq (Llama 3.3 70B text, Llama 4 Scout vision) · Supabase (optional)
+React 18 · Vite · Tailwind CSS · Express · Groq (Llama 3.3 70B text, Llama 4 Scout vision) · Supabase (optional)
 
-## ⚠️ Before deploying publicly
+## Deploying (Railway)
 
-The Groq client runs in the browser (`dangerouslyAllowBrowser`), which means the API key is embedded in the shipped JS bundle and visible to anyone. That's fine for local use and demos, but for a public deployment, move the Groq calls behind a small server or serverless function that holds the key. The same applies to content moderation — it currently runs client-side and should be enforced server-side for a real student community.
+The repo deploys as a single Node service: `npm run build` then `npm run start` serves the built frontend and the `/api/chat` Groq proxy from one process.
+
+1. Create a new Railway service from this GitHub repo
+2. Add `GROQ_API_KEY` in the service's **Variables** tab (plus the `VITE_SUPABASE_*` vars if you use the shared gallery)
+3. Railway auto-detects Node, runs the build, and starts via `npm run start` — generate a public domain under **Settings → Networking**
+
+Note: content moderation for the community gallery still runs client-side; enforce it server-side before opening the gallery to a real student community.

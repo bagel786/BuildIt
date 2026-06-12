@@ -1,5 +1,3 @@
-import Groq from 'groq-sdk';
-
 const TEXT_MODEL = 'llama-3.3-70b-versatile';
 // Groq decommissioned the llama-3.2 vision previews; Llama 4 Scout is the supported multimodal model
 const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
@@ -43,10 +41,19 @@ function resolveLang(language) {
   return language; // full string like 'French', 'Japanese', etc.
 }
 
-function getClient() {
-  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-  if (!apiKey) throw new Error('API_KEY_MISSING');
-  return new Groq({ apiKey, dangerouslyAllowBrowser: true });
+// All Groq calls go through the server proxy so the API key never reaches the browser
+async function chatCompletion(params) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
 }
 
 function newProjectId() {
@@ -64,8 +71,6 @@ function wrapError(err) {
 
 // ── Generate projects from student profile ──────────────────────────────────
 export async function generateProjects(studentData, language) {
-  const client = getClient();
-
   const { name, grade, stemInterests, personalInterests, budget, timeAvailable, complexity, completedCount = 0 } = studentData;
   const lang = resolveLang(language);
   const gradeLabel = GRADE_LABELS[grade] || grade;
@@ -170,7 +175,7 @@ shoppingList rules:
 - If the project needs zero purchased items, return an empty shoppingList array []`;
 
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: TEXT_MODEL,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
       temperature: 0.9,
@@ -198,13 +203,11 @@ shoppingList rules:
 }
 
 // ── Translate existing projects to another language (preserves ids) ─────────
-export async function translateProjects(projects, language) {
-  const client = getClient();
-  const lang = resolveLang(language);
+export async function translateProjects(projects, language) {  const lang = resolveLang(language);
   const stripped = projects.map(({ id, savedAt, ...rest }) => rest);
 
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: TEXT_MODEL,
       messages: [
         {
@@ -229,9 +232,7 @@ export async function translateProjects(projects, language) {
 }
 
 // ── Chat with AI mentor while building a project ────────────────────────────
-export async function chatWithMentor(history, project, imageBase64 = null, language = 'en') {
-  const client = getClient();
-  const lang = resolveLang(language);
+export async function chatWithMentor(history, project, imageBase64 = null, language = 'en') {  const lang = resolveLang(language);
   const useVision = !!imageBase64;
 
   const system = `You are a friendly, encouraging STEM mentor helping a student build: "${project.title}".
@@ -258,7 +259,7 @@ Respond ONLY in ${lang} — do not use any other language. Be warm, specific, an
   ];
 
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: useVision ? VISION_MODEL : TEXT_MODEL,
       messages: groqMessages,
       max_tokens: 512,
@@ -271,9 +272,7 @@ Respond ONLY in ${lang} — do not use any other language. Be warm, specific, an
 }
 
 // ── Generate projects from a photo or text description of materials ──────────
-export async function generateFromMaterials(imageBase64 = null, textDescription = '', studentData, language) {
-  const client = getClient();
-  const lang = resolveLang(language);
+export async function generateFromMaterials(imageBase64 = null, textDescription = '', studentData, language) {  const lang = resolveLang(language);
   const gradeLabel = GRADE_LABELS[studentData?.grade] || 'student';
   const name = studentData?.name || 'the student';
 
@@ -282,7 +281,7 @@ export async function generateFromMaterials(imageBase64 = null, textDescription 
   // Step 1: vision pass to identify materials from photo
   if (imageBase64) {
     try {
-      const vision = await client.chat.completions.create({
+      const vision = await chatCompletion({
         model: VISION_MODEL,
         messages: [{
           role: 'user',
@@ -305,7 +304,7 @@ export async function generateFromMaterials(imageBase64 = null, textDescription 
 
   // Step 2: generate projects from identified materials
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: TEXT_MODEL,
       messages: [
         {
@@ -371,11 +370,9 @@ Return this JSON (steps must be detailed, natural teaching paragraphs — no lab
 }
 
 // ── Explain a STEM concept at the student's grade level ─────────────────────
-export async function explainConcept(concept, gradeLabel, language) {
-  const client = getClient();
-  const lang = resolveLang(language);
+export async function explainConcept(concept, gradeLabel, language) {  const lang = resolveLang(language);
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: TEXT_MODEL,
       messages: [{
         role: 'user',
@@ -395,9 +392,7 @@ export async function explainConcept(concept, gradeLabel, language) {
 }
 
 // ── Quick focused help for one specific build step ───────────────────────────
-export async function getStepHelp(step, stepIndex, project, language, imageBase64 = null) {
-  const client = getClient();
-  const lang = resolveLang(language);
+export async function getStepHelp(step, stepIndex, project, language, imageBase64 = null) {  const lang = resolveLang(language);
   const useVision = !!imageBase64;
   const userContent = useVision
     ? [
@@ -406,7 +401,7 @@ export async function getStepHelp(step, stepIndex, project, language, imageBase6
       ]
     : `I'm stuck on step ${stepIndex + 1}: "${step}". Give me one clear, simple tip to get unstuck. Be specific and encouraging.`;
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: useVision ? VISION_MODEL : TEXT_MODEL,
       messages: [
         { role: 'system', content: `You are a hands-on STEM mentor. Student is building "${project.title}". Materials: ${project.materials.join(', ')}. Be specific, warm, max 4 sentences. Respond ONLY in ${lang} — do not use any other language.` },
@@ -420,11 +415,9 @@ export async function getStepHelp(step, stepIndex, project, language, imageBase6
 }
 
 // ── Generate AI reflection summary after completing a project ────────────────
-export async function generateReflection(answers, project, language) {
-  const client = getClient();
-  const lang = resolveLang(language);
+export async function generateReflection(answers, project, language) {  const lang = resolveLang(language);
   try {
-    const completion = await client.chat.completions.create({
+    const completion = await chatCompletion({
       model: TEXT_MODEL,
       messages: [{
         role: 'user',
@@ -451,10 +444,8 @@ Write an encouraging summary ENTIRELY in ${lang} — do not use any other langua
 }
 
 // ── Moderate community post content before publishing ───────────────────────
-export async function moderateContent(caption, projectTitle) {
-  const client = getClient();
-  try {
-    const completion = await client.chat.completions.create({
+export async function moderateContent(caption, projectTitle) {  try {
+    const completion = await chatCompletion({
       model: TEXT_MODEL,
       messages: [{
         role: 'user',

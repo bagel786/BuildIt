@@ -162,7 +162,7 @@ export const translations = {
     },
 
     errors: {
-      apiKey: 'API key is missing. Add VITE_GROQ_API_KEY to your .env file.',
+      apiKey: 'API key is missing. Add GROQ_API_KEY to the server environment.',
       network: 'Network error. Check your internet connection and try again.',
       parse: 'Oops! The response was unexpected. Please try again.',
       rateLimit: 'Too many requests — wait a few seconds and try again.',
@@ -415,7 +415,7 @@ export const translations = {
     },
 
     errors: {
-      apiKey: 'Falta la clave de API. Agrega VITE_GROQ_API_KEY a tu archivo .env.',
+      apiKey: 'Falta la clave de API. Agrega GROQ_API_KEY al entorno del servidor.',
       network: 'Error de red. Verifica tu conexión e intenta de nuevo.',
       parse: '¡Ups! La respuesta fue inesperada. Por favor intenta de nuevo.',
       rateLimit: 'Demasiadas solicitudes — espera unos segundos e intenta de nuevo.',
