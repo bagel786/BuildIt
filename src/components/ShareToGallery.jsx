@@ -44,6 +44,15 @@ export function ShareToGallery({ project, defaultPhoto, language = 'en', onPoste
       if (!mod.approved) { setBlockReason(mod.reason); setPhase('blocked'); return; }
     } catch { /* fail open */ }
 
+    const projectData = project ? {
+      hook: project.hook,
+      stemConcepts: project.stemConcepts,
+      materials: project.materials,
+      steps: project.steps,
+      estimatedCost: project.estimatedCost,
+      estimatedTime: project.estimatedTime,
+    } : null;
+
     try {
       const newPost = await createPost({
         studentName: studentName.trim(),
@@ -51,6 +60,7 @@ export function ShareToGallery({ project, defaultPhoto, language = 'en', onPoste
         category,
         caption: caption.trim(),
         photo: photo?.base64 || null,
+        projectData,
       });
       onPosted(newPost);
       setPhase('success');

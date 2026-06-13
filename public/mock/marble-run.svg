@@ -1,0 +1,122 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F3E5F5"/>
+      <stop offset="100%" stop-color="#E8EAF6"/>
+    </linearGradient>
+    <linearGradient id="track" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#CE93D8"/>
+      <stop offset="100%" stop-color="#AB47BC"/>
+    </linearGradient>
+    <linearGradient id="cardboard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFECB3"/>
+      <stop offset="100%" stop-color="#FFD54F"/>
+    </linearGradient>
+    <radialGradient id="marbleCyan" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#80DEEA"/>
+      <stop offset="60%" stop-color="#00BCD4"/>
+      <stop offset="100%" stop-color="#006064"/>
+    </radialGradient>
+    <radialGradient id="marbleOrange" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFCC80"/>
+      <stop offset="60%" stop-color="#FF9800"/>
+      <stop offset="100%" stop-color="#E65100"/>
+    </radialGradient>
+    <radialGradient id="marblePink" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#F48FB1"/>
+      <stop offset="60%" stop-color="#E91E63"/>
+      <stop offset="100%" stop-color="#880E4F"/>
+    </radialGradient>
+    <radialGradient id="marbleGreen" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#A5D6A7"/>
+      <stop offset="60%" stop-color="#4CAF50"/>
+      <stop offset="100%" stop-color="#1B5E20"/>
+    </radialGradient>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2.5" flood-color="#6A1B9A" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bg)"/>
+
+  <!-- Floor -->
+  <rect x="0" y="272" width="400" height="28" fill="#7B1FA2" opacity="0.06"/>
+  <line x1="0" y1="272" x2="400" y2="272" stroke="#7B1FA2" stroke-width="1.5" opacity="0.1"/>
+
+  <!-- ── VERTICAL FRAME POSTS ── -->
+  <rect x="42" y="32" width="12" height="244" rx="4" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1"/>
+  <rect x="346" y="32" width="12" height="244" rx="4" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1"/>
+
+  <!-- Horizontal cross-members -->
+  <rect x="42" y="68"  width="316" height="8" rx="3" fill="url(#cardboard)" stroke="#F9A825" stroke-width="0.8" opacity="0.4"/>
+  <rect x="42" y="148" width="316" height="8" rx="3" fill="url(#cardboard)" stroke="#F9A825" stroke-width="0.8" opacity="0.4"/>
+  <rect x="42" y="228" width="316" height="8" rx="3" fill="url(#cardboard)" stroke="#F9A825" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- ── TRACK LEVEL 1 (top): slopes left → right ── -->
+  <g filter="url(#shadow)">
+    <rect x="54" y="54" width="220" height="14" rx="6" fill="url(#track)" transform="rotate(7 54 54)"/>
+  </g>
+  <!-- Track rails -->
+  <line x1="54" y1="54"  x2="274" y2="83"  stroke="#8E24AA" stroke-width="1.5" opacity="0.35"/>
+  <line x1="54" y1="68"  x2="274" y2="97"  stroke="#8E24AA" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Turn 1 (right side funnel) -->
+  <path d="M268 84 Q312 90 316 118" stroke="#AB47BC" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M268 84 Q312 90 316 118" stroke="#CE93D8" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- ── TRACK LEVEL 2: slopes right → left ── -->
+  <g filter="url(#shadow)">
+    <rect x="64" y="118" width="256" height="14" rx="6" fill="url(#track)" transform="rotate(-6 320 118)"/>
+  </g>
+  <line x1="320" y1="118" x2="64"  y2="144" stroke="#8E24AA" stroke-width="1.5" opacity="0.35"/>
+  <line x1="320" y1="132" x2="64"  y2="158" stroke="#8E24AA" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Turn 2 (left side funnel) -->
+  <path d="M70 144 Q38 152 36 180" stroke="#AB47BC" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M70 144 Q38 152 36 180" stroke="#CE93D8" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- ── TRACK LEVEL 3: slopes left → right ── -->
+  <g filter="url(#shadow)">
+    <rect x="42" y="178" width="238" height="14" rx="6" fill="url(#track)" transform="rotate(6 42 178)"/>
+  </g>
+  <line x1="42"  y1="178" x2="280" y2="203" stroke="#8E24AA" stroke-width="1.5" opacity="0.35"/>
+  <line x1="42"  y1="192" x2="280" y2="217" stroke="#8E24AA" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Turn 3 (right side drop funnel) -->
+  <path d="M274 203 Q316 212 316 240" stroke="#AB47BC" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M274 203 Q316 212 316 240" stroke="#CE93D8" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- ── COLLECTION BUCKET ── -->
+  <path d="M294 268 L282 290 L348 290 L336 268 Z" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+  <rect x="280" y="263" width="58" height="8" rx="4" fill="#FFD54F" stroke="#F9A825" stroke-width="1"/>
+  <!-- Marbles in bucket -->
+  <circle cx="303" cy="278" r="7"  fill="url(#marblePink)"/>
+  <circle cx="303" cy="278" r="2.5" fill="white" opacity="0.4"/>
+  <circle cx="318" cy="276" r="6.5" fill="url(#marbleGreen)"/>
+  <circle cx="318" cy="276" r="2"   fill="white" opacity="0.4"/>
+
+  <!-- ── ROLLING MARBLES on each track ── -->
+
+  <!-- Marble on track 1 (cyan) -->
+  <circle cx="152" cy="63" r="10" fill="url(#marbleCyan)" filter="url(#shadow)"/>
+  <circle cx="147" cy="58" r="3.5" fill="white" opacity="0.45"/>
+  <!-- Trail behind it -->
+  <circle cx="115" cy="61" r="6"  fill="#00BCD4" opacity="0.18"/>
+  <circle cx="85"  cy="59" r="4"  fill="#00BCD4" opacity="0.10"/>
+
+  <!-- Marble on track 2 (orange) -->
+  <circle cx="200" cy="130" r="10" fill="url(#marbleOrange)" filter="url(#shadow)"/>
+  <circle cx="195" cy="125" r="3.5" fill="white" opacity="0.45"/>
+  <!-- Trail -->
+  <circle cx="240" cy="127" r="6" fill="#FF9800" opacity="0.18"/>
+
+  <!-- Marble in the turn 3 funnel (pink) -->
+  <circle cx="283" cy="208" r="9" fill="url(#marblePink)" filter="url(#shadow)"/>
+  <circle cx="278" cy="203" r="3" fill="white" opacity="0.4"/>
+
+  <!-- Entry funnel at top left (where you drop marbles in) -->
+  <path d="M54 54 Q54 32 66 28 Q78 24 88 32" stroke="#CE93D8" stroke-width="3" fill="none" opacity="0.7"/>
+  <!-- Arrow pointing down into entry -->
+  <polygon points="54,50 60,36 66,50" fill="#AB47BC" opacity="0.5"/>
+</svg>

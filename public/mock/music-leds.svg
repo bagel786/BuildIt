@@ -1,0 +1,189 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A0533"/>
+      <stop offset="100%" stop-color="#0D001A"/>
+    </linearGradient>
+    <linearGradient id="led1" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#E040FB"/>
+      <stop offset="100%" stop-color="#F8BBD0" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="led2" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#7C4DFF"/>
+      <stop offset="100%" stop-color="#D1C4E9" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="led3" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#00E5FF"/>
+      <stop offset="100%" stop-color="#B3E5FC" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="led4" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#69F0AE"/>
+      <stop offset="100%" stop-color="#C8E6C9" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="led5" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#FFEA00"/>
+      <stop offset="100%" stop-color="#FFF9C4" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="400" height="300" fill="url(#bg)"/>
+
+  <!-- Grid dots (circuit board feel) -->
+  <g fill="#FFFFFF" opacity="0.04">
+    <circle cx="20"  cy="20" r="1.5"/><circle cx="60"  cy="20" r="1.5"/><circle cx="100" cy="20" r="1.5"/>
+    <circle cx="140" cy="20" r="1.5"/><circle cx="180" cy="20" r="1.5"/><circle cx="220" cy="20" r="1.5"/>
+    <circle cx="260" cy="20" r="1.5"/><circle cx="300" cy="20" r="1.5"/><circle cx="340" cy="20" r="1.5"/>
+    <circle cx="380" cy="20" r="1.5"/>
+    <circle cx="20"  cy="60" r="1.5"/><circle cx="60"  cy="60" r="1.5"/><circle cx="100" cy="60" r="1.5"/>
+    <circle cx="140" cy="60" r="1.5"/><circle cx="180" cy="60" r="1.5"/><circle cx="220" cy="60" r="1.5"/>
+    <circle cx="260" cy="60" r="1.5"/><circle cx="300" cy="60" r="1.5"/><circle cx="340" cy="60" r="1.5"/>
+    <circle cx="380" cy="60" r="1.5"/>
+    <circle cx="20"  cy="100" r="1.5"/><circle cx="60"  cy="100" r="1.5"/>
+    <circle cx="340" cy="100" r="1.5"/><circle cx="380" cy="100" r="1.5"/>
+  </g>
+
+  <!-- Breadboard base bar -->
+  <rect x="48" y="238" width="258" height="12" rx="3" fill="#1A237E" opacity="0.7" stroke="#3949AB" stroke-width="1"/>
+  <!-- Breadboard holes -->
+  <g fill="#263238" opacity="0.8">
+    <rect x="56"  cy="242" x="56"  y="241" width="4" height="4" rx="1"/>
+    <rect x="66"  y="241" width="4" height="4" rx="1"/>
+    <rect x="76"  y="241" width="4" height="4" rx="1"/>
+    <rect x="86"  y="241" width="4" height="4" rx="1"/>
+    <rect x="96"  y="241" width="4" height="4" rx="1"/>
+    <rect x="106" y="241" width="4" height="4" rx="1"/>
+    <rect x="116" y="241" width="4" height="4" rx="1"/>
+    <rect x="126" y="241" width="4" height="4" rx="1"/>
+    <rect x="136" y="241" width="4" height="4" rx="1"/>
+    <rect x="146" y="241" width="4" height="4" rx="1"/>
+    <rect x="156" y="241" width="4" height="4" rx="1"/>
+    <rect x="166" y="241" width="4" height="4" rx="1"/>
+    <rect x="176" y="241" width="4" height="4" rx="1"/>
+    <rect x="186" y="241" width="4" height="4" rx="1"/>
+    <rect x="196" y="241" width="4" height="4" rx="1"/>
+    <rect x="206" y="241" width="4" height="4" rx="1"/>
+    <rect x="216" y="241" width="4" height="4" rx="1"/>
+    <rect x="226" y="241" width="4" height="4" rx="1"/>
+    <rect x="236" y="241" width="4" height="4" rx="1"/>
+    <rect x="246" y="241" width="4" height="4" rx="1"/>
+    <rect x="256" y="241" width="4" height="4" rx="1"/>
+    <rect x="266" y="241" width="4" height="4" rx="1"/>
+    <rect x="276" y="241" width="4" height="4" rx="1"/>
+    <rect x="286" y="241" width="4" height="4" rx="1"/>
+    <rect x="296" y="241" width="4" height="4" rx="1"/>
+  </g>
+
+  <!-- Sound waveform (subtle, behind bars) -->
+  <path d="M30 158 Q55 158 55 158 Q70 158 80 125 Q90 90 100 158 Q110 226 120 158 Q130 90 145 158 Q160 226 175 158 Q185 108 195 158 Q205 198 215 158 Q230 118 245 158 Q255 182 265 158 Q275 133 285 158 Q295 172 305 158 Q315 148 325 158 Q340 158 370 158"
+        stroke="#FFFFFF" stroke-width="1.5" fill="none" opacity="0.18" stroke-linecap="round"/>
+
+  <!-- ── LED EQUALIZER BARS (5 bars) ── -->
+
+  <!-- Bar 1 — magenta/pink — medium-short -->
+  <rect x="58" y="180" width="34" height="58" rx="6" fill="url(#led1)" filter="url(#glow)"/>
+  <rect x="58" y="178" width="34" height="5" rx="3" fill="#F8BBD0" opacity="0.95"/>
+  <!-- LED pin legs -->
+  <line x1="68" y1="238" x2="68" y2="248" stroke="#E040FB" stroke-width="1.5" opacity="0.7"/>
+  <line x1="83" y1="238" x2="83" y2="248" stroke="#E040FB" stroke-width="1.5" opacity="0.7"/>
+  <!-- Floor glow -->
+  <ellipse cx="75" cy="238" rx="22" ry="7" fill="#E040FB" opacity="0.25" filter="url(#softglow)"/>
+
+  <!-- Bar 2 — indigo/violet — medium -->
+  <rect x="106" y="158" width="34" height="80" rx="6" fill="url(#led2)" filter="url(#glow)"/>
+  <rect x="106" y="156" width="34" height="5" rx="3" fill="#D1C4E9" opacity="0.95"/>
+  <line x1="116" y1="238" x2="116" y2="248" stroke="#7C4DFF" stroke-width="1.5" opacity="0.7"/>
+  <line x1="131" y1="238" x2="131" y2="248" stroke="#7C4DFF" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="123" cy="238" rx="22" ry="7" fill="#7C4DFF" opacity="0.28" filter="url(#softglow)"/>
+
+  <!-- Bar 3 — cyan — tallest -->
+  <rect x="154" y="108" width="34" height="130" rx="6" fill="url(#led3)" filter="url(#glow)"/>
+  <rect x="154" y="106" width="34" height="5" rx="3" fill="#B3E5FC" opacity="0.95"/>
+  <line x1="164" y1="238" x2="164" y2="248" stroke="#00E5FF" stroke-width="1.5" opacity="0.7"/>
+  <line x1="179" y1="238" x2="179" y2="248" stroke="#00E5FF" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="171" cy="238" rx="24" ry="8" fill="#00E5FF" opacity="0.32" filter="url(#softglow)"/>
+
+  <!-- Bar 4 — green — medium -->
+  <rect x="202" y="145" width="34" height="93" rx="6" fill="url(#led4)" filter="url(#glow)"/>
+  <rect x="202" y="143" width="34" height="5" rx="3" fill="#C8E6C9" opacity="0.95"/>
+  <line x1="212" y1="238" x2="212" y2="248" stroke="#69F0AE" stroke-width="1.5" opacity="0.7"/>
+  <line x1="227" y1="238" x2="227" y2="248" stroke="#69F0AE" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="219" cy="238" rx="22" ry="7" fill="#69F0AE" opacity="0.27" filter="url(#softglow)"/>
+
+  <!-- Bar 5 — yellow — medium-short -->
+  <rect x="250" y="168" width="34" height="70" rx="6" fill="url(#led5)" filter="url(#glow)"/>
+  <rect x="250" y="166" width="34" height="5" rx="3" fill="#FFF9C4" opacity="0.95"/>
+  <line x1="260" y1="238" x2="260" y2="248" stroke="#FFEA00" stroke-width="1.5" opacity="0.7"/>
+  <line x1="275" y1="238" x2="275" y2="248" stroke="#FFEA00" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="267" cy="238" rx="22" ry="7" fill="#FFEA00" opacity="0.27" filter="url(#softglow)"/>
+
+  <!-- ── ARDUINO UNO board (bottom right) ── -->
+  <rect x="308" y="188" width="78" height="58" rx="6" fill="#1B5E20" stroke="#2E7D32" stroke-width="1.5"/>
+  <!-- Board body -->
+  <rect x="312" y="192" width="70" height="50" rx="4" fill="#1B5E20"/>
+  <!-- Main chip (ATmega) -->
+  <rect x="325" y="202" width="32" height="24" rx="2" fill="#1A1A1A"/>
+  <!-- Chip legs -->
+  <g stroke="#B0BEC5" stroke-width="1">
+    <line x1="326" y1="200" x2="323" y2="198"/><line x1="332" y1="200" x2="329" y2="198"/>
+    <line x1="338" y1="200" x2="335" y2="198"/><line x1="344" y1="200" x2="341" y2="198"/>
+    <line x1="350" y1="200" x2="347" y2="198"/>
+    <line x1="326" y1="227" x2="323" y2="229"/><line x1="332" y1="227" x2="329" y2="229"/>
+    <line x1="338" y1="227" x2="335" y2="229"/><line x1="344" y1="227" x2="341" y2="229"/>
+    <line x1="350" y1="227" x2="347" y2="229"/>
+  </g>
+  <!-- USB port -->
+  <rect x="312" y="208" width="10" height="14" rx="2" fill="#455A64"/>
+  <rect x="313" y="209" width="8" height="12" rx="1" fill="#37474F"/>
+  <!-- Power LED (green) -->
+  <circle cx="362" cy="197" r="3.5" fill="#69F0AE" filter="url(#glow)"/>
+  <!-- Digital pins header -->
+  <g fill="#B0BEC5">
+    <rect x="363" y="193" width="3" height="5" rx="1"/>
+    <rect x="369" y="193" width="3" height="5" rx="1"/>
+    <rect x="375" y="193" width="3" height="5" rx="1"/>
+  </g>
+  <!-- Analog pins header -->
+  <g fill="#B0BEC5">
+    <rect x="363" y="237" width="3" height="5" rx="1"/>
+    <rect x="369" y="237" width="3" height="5" rx="1"/>
+    <rect x="375" y="237" width="3" height="5" rx="1"/>
+  </g>
+
+  <!-- ── MICROPHONE MODULE (KY-038) ── -->
+  <rect x="312" y="148" width="36" height="36" rx="4" fill="#263238" stroke="#455A64" stroke-width="1.5"/>
+  <!-- Mic capsule (round element) -->
+  <circle cx="330" cy="166" r="12" fill="#1C313A" stroke="#546E7A" stroke-width="1.5"/>
+  <circle cx="330" cy="166" r="7" fill="#102027"/>
+  <circle cx="330" cy="166" r="3.5" fill="#0D1B21"/>
+  <!-- Mic mesh dots -->
+  <g fill="#546E7A" opacity="0.5">
+    <circle cx="326" cy="162" r="1"/><circle cx="330" cy="162" r="1"/><circle cx="334" cy="162" r="1"/>
+    <circle cx="326" cy="166" r="1"/>                                    <circle cx="334" cy="166" r="1"/>
+    <circle cx="326" cy="170" r="1"/><circle cx="330" cy="170" r="1"/><circle cx="334" cy="170" r="1"/>
+  </g>
+  <!-- Module pins -->
+  <g fill="#B0BEC5">
+    <rect x="312" y="155" width="3" height="5" rx="1"/>
+    <rect x="312" y="163" width="3" height="5" rx="1"/>
+    <rect x="312" y="171" width="3" height="5" rx="1"/>
+  </g>
+
+  <!-- Sound waves emanating from mic -->
+  <path d="M298 160 Q288 166 298 172" stroke="#00E5FF" stroke-width="1.5" fill="none" opacity="0.35"/>
+  <path d="M293 155 Q279 166 293 177" stroke="#00E5FF" stroke-width="1.5" fill="none" opacity="0.2"/>
+
+  <!-- Jumper wires from Arduino to breadboard/bars -->
+  <path d="M308 205 Q295 200 278 195 Q268 190 260 172" stroke="#E040FB" stroke-width="1.5" fill="none" opacity="0.5" stroke-dasharray="4,3"/>
+  <path d="M308 212 Q290 207 250 195 Q230 188 219 152" stroke="#00E5FF" stroke-width="1.5" fill="none" opacity="0.5" stroke-dasharray="4,3"/>
+  <!-- Wire from mic to Arduino -->
+  <line x1="312" y1="163" x2="308" y2="206" stroke="#69F0AE" stroke-width="1.5" opacity="0.45" stroke-dasharray="3,3"/>
+</svg>

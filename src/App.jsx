@@ -47,6 +47,9 @@ export default function App() {
   useEffect(() => { localStorage.setItem('buildit-completed', JSON.stringify(completedTitles)); }, [completedTitles]);
   useEffect(() => { localStorage.setItem('buildit-inprogress', JSON.stringify(inProgressTitles)); }, [inProgressTitles]);
   useEffect(() => { localStorage.setItem('buildit-lang', JSON.stringify(language)); }, [language]);
+  useEffect(() => {
+    if (studentData) localStorage.setItem('buildit-student-profile', JSON.stringify(studentData));
+  }, [studentData]);
 
   // Translate the existing projects in place when language is toggled
   useEffect(() => {
@@ -232,6 +235,7 @@ export default function App() {
       {view === 'community' && (
         <Community
           language={language}
+          studentData={studentData}
           onBack={() => setView('form')}
           onNavigate={setView}
         />

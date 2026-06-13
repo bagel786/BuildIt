@@ -1,0 +1,102 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0F2F1"/>
+      <stop offset="100%" stop-color="#B2EBF2"/>
+    </linearGradient>
+    <linearGradient id="cardboard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFECB3"/>
+      <stop offset="100%" stop-color="#FFD54F"/>
+    </linearGradient>
+    <linearGradient id="palm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="100%" stop-color="#FFC107"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bg)"/>
+
+  <!-- Work table surface -->
+  <rect x="0" y="255" width="400" height="45" fill="#00796B" opacity="0.08"/>
+  <line x1="0" y1="255" x2="400" y2="255" stroke="#00796B" stroke-width="1.5" opacity="0.18"/>
+
+  <!-- ── CARDBOARD ROBO-HAND ── -->
+
+  <!-- Palm -->
+  <rect x="152" y="178" width="98" height="82" rx="8" fill="url(#palm)" stroke="#F9A825" stroke-width="2"/>
+  <!-- Palm texture (corrugated cardboard lines) -->
+  <line x1="162" y1="192" x2="240" y2="192" stroke="#F9A825" stroke-width="0.8" opacity="0.35"/>
+  <line x1="162" y1="205" x2="240" y2="205" stroke="#F9A825" stroke-width="0.8" opacity="0.35"/>
+  <line x1="162" y1="218" x2="240" y2="218" stroke="#F9A825" stroke-width="0.8" opacity="0.35"/>
+  <line x1="162" y1="232" x2="240" y2="232" stroke="#F9A825" stroke-width="0.8" opacity="0.35"/>
+  <line x1="162" y1="245" x2="240" y2="245" stroke="#F9A825" stroke-width="0.8" opacity="0.35"/>
+
+  <!-- Wrist controller tab -->
+  <rect x="172" y="257" width="58" height="32" rx="5" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+  <!-- Wrist corrugation lines -->
+  <line x1="182" y1="265" x2="220" y2="265" stroke="#F9A825" stroke-width="0.7" opacity="0.35"/>
+  <line x1="182" y1="275" x2="220" y2="275" stroke="#F9A825" stroke-width="0.7" opacity="0.35"/>
+
+  <!-- ── FINGERS (5) ── -->
+  <!-- Pinky (leftmost) -->
+  <rect x="154" y="108" width="15" height="72" rx="6" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+  <rect x="153" y="132" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="153" y="154" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <!-- straw guides -->
+  <rect x="157" y="116" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <rect x="157" y="140" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <!-- fishing line tendon -->
+  <line x1="161" y1="108" x2="161" y2="178" stroke="#00BCD4" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+
+  <!-- Ring finger -->
+  <rect x="172" y="97" width="15" height="83" rx="6" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+  <rect x="171" y="123" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="171" y="147" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="175" y="106" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <rect x="175" y="130" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <line x1="179" y1="97" x2="179" y2="178" stroke="#00BCD4" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+
+  <!-- Middle finger (tallest) -->
+  <rect x="191" y="86" width="15" height="94" rx="6" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+  <rect x="190" y="114" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="190" y="140" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="194" y="96" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <rect x="194" y="120" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <line x1="198" y1="86" x2="198" y2="178" stroke="#00BCD4" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+
+  <!-- Index finger -->
+  <rect x="210" y="93" width="15" height="87" rx="6" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+  <rect x="209" y="119" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="209" y="143" width="17" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+  <rect x="213" y="102" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <rect x="213" y="126" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  <line x1="217" y1="93" x2="217" y2="178" stroke="#00BCD4" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+
+  <!-- Thumb (angled outward) -->
+  <g transform="rotate(28 238 198)">
+    <rect x="228" y="163" width="14" height="58" rx="6" fill="url(#cardboard)" stroke="#F9A825" stroke-width="1.5"/>
+    <rect x="227" y="185" width="16" height="5" rx="2" fill="#E65100" opacity="0.45"/>
+    <line x1="235" y1="163" x2="235" y2="220" stroke="#00BCD4" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+    <rect x="230" y="172" width="9" height="5" rx="2" fill="#0097A7" opacity="0.65"/>
+  </g>
+
+  <!-- ── CONTROL STRINGS running to pull-stick ── -->
+  <line x1="161" y1="289" x2="320" y2="289" stroke="#00BCD4" stroke-width="1.5" opacity="0.4"/>
+  <line x1="179" y1="289" x2="320" y2="289" stroke="#00BCD4" stroke-width="1.5" opacity="0.35"/>
+  <line x1="198" y1="289" x2="320" y2="289" stroke="#00BCD4" stroke-width="1.5" opacity="0.4"/>
+  <line x1="217" y1="289" x2="320" y2="289" stroke="#00BCD4" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Pull stick / controller -->
+  <rect x="315" y="278" width="38" height="12" rx="5" fill="#795548"/>
+  <rect x="318" y="281" width="32" height="6" rx="3" fill="#6D4C41"/>
+
+  <!-- ── OBJECT being gripped (small plastic cup) ── -->
+  <path d="M52 207 L46 170 L92 170 L86 207 Z" fill="#E1F5FE" stroke="#81D4FA" stroke-width="1.5"/>
+  <rect x="43" y="165" width="52" height="8" rx="3" fill="#B3E5FC" stroke="#81D4FA" stroke-width="1"/>
+  <!-- Liquid inside cup -->
+  <path d="M50 200 L47 170 L91 170 L88 200 Z" fill="#4FC3F7" opacity="0.3"/>
+  <!-- Grip impression lines where fingers touch cup -->
+  <line x1="86" y1="175" x2="86" y2="200" stroke="#4FC3F7" stroke-width="1" opacity="0.5"/>
+  <line x1="52" y1="175" x2="52" y2="200" stroke="#4FC3F7" stroke-width="1" opacity="0.5"/>
+</svg>

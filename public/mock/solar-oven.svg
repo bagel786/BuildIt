@@ -1,0 +1,101 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF9C4"/>
+      <stop offset="100%" stop-color="#FFF3E0"/>
+    </linearGradient>
+    <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5F5F5"/>
+      <stop offset="30%" stop-color="#C5CAE9"/>
+      <stop offset="65%" stop-color="#E8EAF6"/>
+      <stop offset="100%" stop-color="#9FA8DA"/>
+    </linearGradient>
+    <linearGradient id="boxOuter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D7CCC8"/>
+      <stop offset="100%" stop-color="#A1887F"/>
+    </linearGradient>
+    <linearGradient id="boxInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#BCAAA4"/>
+      <stop offset="100%" stop-color="#8D6E63"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF59D"/>
+      <stop offset="50%" stop-color="#FFEE58"/>
+      <stop offset="100%" stop-color="#FDD835"/>
+    </radialGradient>
+    <radialGradient id="choc" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#795548"/>
+      <stop offset="100%" stop-color="#4E342E"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#sky)"/>
+
+  <!-- Ground -->
+  <rect x="0" y="248" width="400" height="52" fill="#A1887F" opacity="0.1"/>
+  <line x1="0" y1="248" x2="400" y2="248" stroke="#A1887F" stroke-width="1.5" opacity="0.18"/>
+
+  <!-- Sun -->
+  <circle cx="345" cy="52" r="32" fill="url(#sunGlow)"/>
+  <!-- Sun rays -->
+  <g stroke="#FDD835" stroke-width="3" stroke-linecap="round" opacity="0.8">
+    <line x1="345" y1="8"  x2="345" y2="0"/>
+    <line x1="373" y1="24" x2="381" y2="16"/>
+    <line x1="387" y1="52" x2="399" y2="52"/>
+    <line x1="373" y1="80" x2="381" y2="88"/>
+    <line x1="345" y1="96" x2="345" y2="104"/>
+    <line x1="317" y1="80" x2="309" y2="88"/>
+    <line x1="303" y1="52" x2="291" y2="52"/>
+    <line x1="317" y1="24" x2="309" y2="16"/>
+  </g>
+
+  <!-- ── MAIN BOX BODY (shoebox / cardboard box) ── -->
+  <!-- Outer box walls -->
+  <rect x="88" y="148" width="188" height="132" rx="4" fill="url(#boxOuter)"/>
+  <!-- Front face -->
+  <rect x="93" y="153" width="178" height="122" rx="3" fill="url(#boxInner)"/>
+  <!-- Inner black absorber lining -->
+  <rect x="108" y="166" width="148" height="98" rx="2" fill="#212121"/>
+
+  <!-- Foil lining on inner walls (sides) -->
+  <rect x="108" y="166" width="6" height="98" fill="#B0BEC5" opacity="0.45"/>
+  <rect x="250" y="166" width="6" height="98" fill="#B0BEC5" opacity="0.45"/>
+
+  <!-- Chocolate bar on black absorber -->
+  <rect x="148" y="192" width="68" height="40" rx="3" fill="url(#choc)"/>
+  <!-- Chocolate grid lines -->
+  <line x1="165" y1="192" x2="165" y2="232" stroke="#3E2723" stroke-width="1.5"/>
+  <line x1="182" y1="192" x2="182" y2="232" stroke="#3E2723" stroke-width="1.5"/>
+  <line x1="199" y1="192" x2="199" y2="232" stroke="#3E2723" stroke-width="1.5"/>
+  <line x1="148" y1="212" x2="216" y2="212" stroke="#3E2723" stroke-width="1.5"/>
+  <!-- Melting drip -->
+  <ellipse cx="182" cy="233" rx="11" ry="4" fill="#3E2723" opacity="0.6"/>
+  <path d="M178 232 Q180 242 182 246 Q184 242 186 232" fill="#3E2723" opacity="0.55"/>
+
+  <!-- Plastic wrap (transparent seal across box opening) -->
+  <rect x="93" y="153" width="178" height="122" rx="3" fill="#E3F2FD" opacity="0.10" stroke="#90CAF9" stroke-width="1.5"/>
+
+  <!-- ── LID / FOIL REFLECTOR PANEL (angled open at ~45°) ── -->
+  <g transform="rotate(-44 93 153)">
+    <rect x="93" y="90" width="188" height="65" rx="4" fill="url(#foil)"/>
+    <!-- Foil shimmer lines (vertical stripes) -->
+    <line x1="112" y1="93"  x2="112" y2="152" stroke="white" stroke-width="1"   opacity="0.55"/>
+    <line x1="138" y1="93"  x2="138" y2="152" stroke="white" stroke-width="0.8" opacity="0.4"/>
+    <line x1="164" y1="93"  x2="164" y2="152" stroke="white" stroke-width="1"   opacity="0.55"/>
+    <line x1="190" y1="93"  x2="190" y2="152" stroke="white" stroke-width="0.8" opacity="0.4"/>
+    <line x1="216" y1="93"  x2="216" y2="152" stroke="white" stroke-width="1"   opacity="0.55"/>
+    <line x1="258" y1="93"  x2="258" y2="152" stroke="white" stroke-width="0.8" opacity="0.4"/>
+    <!-- Foil border -->
+    <rect x="93" y="90" width="188" height="65" rx="4" fill="none" stroke="#9FA8DA" stroke-width="1.5"/>
+  </g>
+
+  <!-- ── SUNBEAMS hitting the reflector ── -->
+  <line x1="345" y1="52" x2="174" y2="116" stroke="#FFEE58" stroke-width="2" opacity="0.5" stroke-dasharray="7,5"/>
+  <line x1="345" y1="52" x2="148" y2="130" stroke="#FFEE58" stroke-width="1.5" opacity="0.35" stroke-dasharray="7,5"/>
+
+  <!-- Heat shimmer waves above box opening -->
+  <path d="M138 146 Q146 138 138 130 Q146 122 138 114" stroke="#FF7043" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <path d="M182 144 Q190 136 182 128 Q190 120 182 112" stroke="#FF7043" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <path d="M226 146 Q234 138 226 130 Q234 122 226 114" stroke="#FF7043" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
+</svg>

@@ -45,7 +45,6 @@ export function PostCard({ post, language = 'en', onLikeUpdate }) {
   const [optimisticLikes, setOptimisticLikes] = useState(post.likes);
   const [liked, setLiked] = useState(post.likedBy?.includes(SESSION_ID));
   const [tapping, setTapping] = useState(false);
-  const [expanded, setExpanded] = useState(false);
 
   const handleLike = async () => {
     if (tapping) return;
@@ -100,20 +99,25 @@ export function PostCard({ post, language = 'en', onLikeUpdate }) {
       </div>
 
       {/* Content */}
-      <div className="p-md flex-1 flex flex-col">
-        <h3 className="font-headline-md text-headline-md text-on-surface mb-xs line-clamp-1">
+      <div className="p-md flex flex-col gap-xs">
+        <h3 className="font-headline-md text-headline-md text-on-surface line-clamp-1">
           {post.projectTitle}
         </h3>
-        <p className={`font-body-md text-body-md text-on-surface-variant mb-md flex-1 ${expanded ? '' : 'line-clamp-2'}`}>
+        <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 flex-1">
           {post.caption}
         </p>
 
-        {/* Like + View Details */}
-        <div className="flex items-center justify-between mt-auto">
+        {/* Footer: author + time + like */}
+        <div className="flex items-center justify-between mt-xs">
+          <div>
+            <p className="font-body-md text-[13px] text-on-surface font-bold">{post.studentName}</p>
+            <p className="font-body-md text-[11px] text-on-surface-variant">{timeAgo(post.createdAt)}</p>
+          </div>
+
           <button
             onClick={handleLike}
             disabled={tapping}
-            className={`flex items-center gap-xs transition-colors p-2 -ml-2 rounded-full hover:bg-error/5 ${
+            className={`flex items-center gap-xs transition-colors p-2 rounded-full hover:bg-error/5 ${
               liked ? 'text-error' : 'text-outline hover:text-error'
             }`}
           >
@@ -125,25 +129,7 @@ export function PostCard({ post, language = 'en', onLikeUpdate }) {
             </span>
             <span className="font-body-md text-body-md font-bold">{optimisticLikes}</span>
           </button>
-
-          <button
-            onClick={() => setExpanded(e => !e)}
-            className="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-2 rounded-lg border-b-4 border-on-primary-fixed-variant active:border-b-0 active:translate-y-[4px] hover:brightness-110 transition-all flex items-center gap-xs"
-          >
-            {expanded ? tr.card?.showLess || 'Show Less' : tr.community?.viewDetails || 'View Details'}
-            <span className="material-symbols-outlined text-[18px]">
-              {expanded ? 'expand_less' : 'arrow_forward'}
-            </span>
-          </button>
         </div>
-
-        {/* Expanded: author + time */}
-        {expanded && (
-          <div className="mt-sm pt-sm border-t border-outline-variant flex items-center justify-between">
-            <p className="font-body-md text-[13px] text-on-surface font-bold">{post.studentName}</p>
-            <p className="font-body-md text-[12px] text-on-surface-variant">{timeAgo(post.createdAt)}</p>
-          </div>
-        )}
       </div>
     </article>
   );

@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchPosts } from '../services/communityService';
+import { fetchPosts, fetchIdeas } from '../services/communityService';
 import { PostCard } from './PostCard';
+import { IdeaCard } from './IdeaCard';
 import { ShareToGallery } from './ShareToGallery';
+import { ShareIdea } from './ShareIdea';
 import { translations, uiLang } from '../i18n/translations';
 
 const FILTERS = (tr) => [
@@ -13,30 +15,61 @@ const FILTERS = (tr) => [
   { key: 'art',         label: tr.community.filterArt },
 ];
 
-export function Community({ language, onBack, onNavigate }) {
-  const tr = translations[uiLang(language)];
-  const [posts, setPosts]         = useState([]);
-  const [filter, setFilter]       = useState('all');
-  const [search, setSearch]       = useState('');
-  const [loading, setLoading]     = useState(true);
-  const [shareOpen, setShareOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+const GRADE_LABELS = {
+  k2: 'K–2', '35': '3–5', '68': '6–8', '912': '9–12',
+};
 
-  const load = useCallback(async (cat) => {
-    setLoading(true);
+export function Community({ language, studentData: propStudentData, onBack, onNavigate }) {
+  const tr = translations[uiLang(language)];
+
+  // Use passed prop, or fall back to persisted profile from localStorage
+  const studentData = propStudentData || (() => {
+    try { return JSON.parse(localStorage.getItem('buildit-student-profile') || 'null'); }
+    catch { return null; }
+  })();
+  const grade = studentData?.grade || null;
+  const gradeLabel = grade ? GRADE_LABELS[grade] : null;
+
+  const [tab, setTab]                   = useState('ideas'); // 'ideas' | 'creations'
+  const [posts, setPosts]               = useState([]);
+  const [ideas, setIdeas]               = useState([]);
+  const [filter, setFilter]             = useState('all');
+  const [search, setSearch]             = useState('');
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [ideasLoading, setIdeasLoading] = useState(true);
+  const [shareOpen, setShareOpen]       = useState(false);
+  const [ideaShareOpen, setIdeaShareOpen] = useState(false);
+
+  const loadPosts = useCallback(async (cat) => {
+    setPostsLoading(true);
     try {
-      const data = await fetchPosts(cat);
+      const data = await fetchPosts(cat, grade);
       setPosts(data);
     } catch {
       setPosts([]);
     } finally {
-      setLoading(false);
+      setPostsLoading(false);
     }
-  }, []);
+  }, [grade]);
 
-  useEffect(() => { load(filter); }, [filter, refreshKey, load]);
+  const loadIdeas = useCallback(async (cat) => {
+    setIdeasLoading(true);
+    try {
+      const data = await fetchIdeas(cat, grade);
+      setIdeas(data);
+    } catch {
+      setIdeas([]);
+    } finally {
+      setIdeasLoading(false);
+    }
+  }, [grade]);
 
-  const displayed = posts.filter(p => {
+  useEffect(() => {
+    if (tab === 'creations') loadPosts(filter);
+    else loadIdeas(filter);
+  }, [tab, filter, loadPosts, loadIdeas]);
+
+  const filteredPosts = posts.filter(p => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
@@ -46,17 +79,38 @@ export function Community({ language, onBack, onNavigate }) {
     );
   });
 
+  const filteredIdeas = ideas.filter(i => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      i.ideaTitle?.toLowerCase().includes(q) ||
+      i.studentName?.toLowerCase().includes(q) ||
+      i.description?.toLowerCase().includes(q)
+    );
+  });
+
   const handlePosted = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
     setShareOpen(false);
+  };
+
+  const handleIdeaPosted = (newIdea) => {
+    setIdeas(prev => [newIdea, ...prev]);
+    setIdeaShareOpen(false);
   };
 
   const handleLikeUpdate = (updatedPost) => {
     setPosts(prev => prev.map(p => p.id === updatedPost.id ? { ...p, likes: updatedPost.likes } : p));
   };
 
-  const topPost = displayed.reduce((best, p) => (!best || p.likes > best.likes) ? p : best, null);
+  const handleIdeaLikeUpdate = (updatedIdea) => {
+    setIdeas(prev => prev.map(i => i.id === updatedIdea.id ? { ...i, likes: updatedIdea.likes } : i));
+  };
+
+  const topPost = filteredPosts.reduce((best, p) => (!best || p.likes > best.likes) ? p : best, null);
   const filters = FILTERS(tr);
+  const loading = tab === 'creations' ? postsLoading : ideasLoading;
+  const displayed = tab === 'creations' ? filteredPosts : filteredIdeas;
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -83,17 +137,74 @@ export function Community({ language, onBack, onNavigate }) {
       {/* Main */}
       <main className="w-full max-w-[1200px] mx-auto pt-[80px] pb-[100px] md:pb-[80px] px-margin-mobile md:px-margin-desktop min-h-screen">
 
-        {/* Page header + AI badge */}
-        <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-xl mt-md">
+        {/* Page header */}
+        <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg mt-md">
           <div>
-            <h1 className="font-display text-display text-on-surface mb-xs">{tr.community.title}</h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant">{tr.community.subtitle}</p>
+            <h1 className="font-display text-display text-on-surface mb-xs">
+              {tab === 'ideas' ? tr.community.ideasTitle : tr.community.title}
+            </h1>
+            <p className="font-body-lg text-body-lg text-on-surface-variant">
+              {tab === 'ideas' ? tr.community.ideasSubtitle : tr.community.subtitle}
+            </p>
           </div>
-          <div className="flex items-center gap-sm bg-tertiary-container text-on-tertiary-container px-4 py-3 rounded-xl shadow-sm border border-tertiary/20 max-w-xs">
-            <span className="material-symbols-outlined flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-            <p className="font-body-md text-[14px] font-bold">{tr.community.aiModeration}</p>
+          {/* AI badge + grade indicator */}
+          <div className="flex flex-col items-end gap-xs">
+            <div className={`flex items-center gap-sm px-4 py-3 rounded-xl shadow-sm border max-w-xs ${
+              tab === 'ideas'
+                ? 'bg-secondary-container text-on-secondary-container border-secondary/20'
+                : 'bg-tertiary-container text-on-tertiary-container border-tertiary/20'
+            }`}>
+              <span className="material-symbols-outlined flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {tab === 'ideas' ? 'tips_and_updates' : 'verified_user'}
+              </span>
+              <p className="font-body-md text-[14px] font-bold">
+                {tab === 'ideas' ? tr.community.ideasAiValidation : tr.community.aiModeration}
+              </p>
+            </div>
+            {gradeLabel && (
+              <div className="flex items-center gap-xs bg-primary-container/60 text-on-primary-container px-3 py-1.5 rounded-full border border-primary/20">
+                <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
+                <span className="font-label-caps text-[11px] font-bold">Grade {gradeLabel}</span>
+              </div>
+            )}
           </div>
         </section>
+
+        {/* Tab switcher */}
+        <div className="flex items-center bg-surface-container rounded-full p-1 gap-1 self-start mb-xl w-fit">
+          <button
+            onClick={() => { setTab('ideas'); setSearch(''); }}
+            className={`flex items-center gap-xs px-lg py-sm rounded-full font-headline-md text-headline-md transition-all ${
+              tab === 'ideas'
+                ? 'bg-secondary text-on-secondary shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface'
+            }`}
+          >
+            <span
+              className="material-symbols-outlined text-[18px]"
+              style={{ fontVariationSettings: tab === 'ideas' ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              lightbulb
+            </span>
+            {tr.community.ideasTab}
+          </button>
+          <button
+            onClick={() => { setTab('creations'); setSearch(''); }}
+            className={`flex items-center gap-xs px-lg py-sm rounded-full font-headline-md text-headline-md transition-all ${
+              tab === 'creations'
+                ? 'bg-tertiary text-on-tertiary shadow-sm'
+                : 'text-on-surface-variant hover:text-on-surface'
+            }`}
+          >
+            <span
+              className="material-symbols-outlined text-[18px]"
+              style={{ fontVariationSettings: tab === 'creations' ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              build
+            </span>
+            {tr.community.creationsTab}
+          </button>
+        </div>
 
         {/* Search + Filters */}
         <section className="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md mb-xl flex flex-col md:flex-row gap-md shadow-[0px_4px_20px_rgba(0,0,0,0.05)]">
@@ -129,7 +240,7 @@ export function Community({ language, onBack, onNavigate }) {
           </div>
         </section>
 
-        {/* States */}
+        {/* Loading skeletons */}
         {loading && (
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
             {[...Array(6)].map((_, i) => (
@@ -138,29 +249,41 @@ export function Community({ language, onBack, onNavigate }) {
           </section>
         )}
 
+        {/* Empty state */}
         {!loading && displayed.length === 0 && (
           <div className="text-center py-xl flex flex-col items-center gap-md">
             <div className="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center">
-              <span className="material-symbols-outlined text-[48px] text-on-surface-variant">groups</span>
+              <span className="material-symbols-outlined text-[48px] text-on-surface-variant">
+                {tab === 'ideas' ? 'lightbulb' : 'groups'}
+              </span>
             </div>
             <div>
-              <p className="font-headline-md text-headline-md text-on-surface mb-xs">{tr.community.noBuilds}</p>
-              <p className="font-body-md text-body-md text-on-surface-variant">{tr.community.noBuildsSubtitle}</p>
+              <p className="font-headline-md text-headline-md text-on-surface mb-xs">
+                {tab === 'ideas' ? tr.community.noIdeas : tr.community.noBuilds}
+              </p>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                {tab === 'ideas' ? tr.community.noIdeasSubtitle : tr.community.noBuildsSubtitle}
+              </p>
             </div>
             <button
-              onClick={() => setShareOpen(true)}
-              className="bg-tertiary text-on-tertiary px-lg py-sm rounded-xl font-headline-md text-headline-md shadow-[0_4px_0_0_#00531c] active:shadow-none active:translate-y-1 transition-all flex items-center gap-sm"
+              onClick={() => tab === 'ideas' ? setIdeaShareOpen(true) : setShareOpen(true)}
+              className={`px-lg py-sm rounded-xl font-headline-md text-headline-md shadow-[0_4px_0_0_rgba(0,0,0,0.25)] active:shadow-none active:translate-y-1 transition-all flex items-center gap-sm ${
+                tab === 'ideas'
+                  ? 'bg-secondary text-on-secondary'
+                  : 'bg-tertiary text-on-tertiary shadow-[0_4px_0_0_#00531c]'
+              }`}
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
-              {tr.community.shareFirstCTA}
+              {tab === 'ideas' ? tr.community.shareIdeaFirstCTA : tr.community.shareFirstCTA}
             </button>
           </div>
         )}
 
+        {/* Content grid */}
         {!loading && displayed.length > 0 && (
           <>
-            {/* Spotlight: most loved */}
-            {filter === 'all' && !search && topPost && topPost.likes >= 5 && (
+            {/* Spotlight: most loved build (creations tab only) */}
+            {tab === 'creations' && filter === 'all' && !search && topPost && topPost.likes >= 5 && (
               <div className="mb-lg">
                 <div className="flex items-center gap-xs mb-sm">
                   <span className="material-symbols-outlined text-secondary text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
@@ -172,39 +295,47 @@ export function Community({ language, onBack, onNavigate }) {
               </div>
             )}
 
-            {filter === 'all' && !search && topPost?.likes >= 5 && (
+            {tab === 'creations' && filter === 'all' && !search && topPost?.likes >= 5 && (
               <p className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-sm">{tr.community.allBuilds}</p>
             )}
 
             {/* Grid */}
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-              {displayed
-                .filter(p => !(filter === 'all' && !search && topPost?.likes >= 5 && p.id === topPost?.id))
-                .map(post => (
-                  <PostCard key={post.id} post={post} language={language} onLikeUpdate={handleLikeUpdate} />
-                ))}
+              {tab === 'creations'
+                ? displayed
+                    .filter(p => !(filter === 'all' && !search && topPost?.likes >= 5 && p.id === topPost?.id))
+                    .map(post => (
+                      <PostCard key={post.id} post={post} language={language} onLikeUpdate={handleLikeUpdate} />
+                    ))
+                : displayed.map(idea => (
+                    <IdeaCard key={idea.id} idea={idea} language={language} studentData={studentData} onLikeUpdate={handleIdeaLikeUpdate} />
+                  ))
+              }
             </section>
-
-            <button
-              onClick={() => setRefreshKey(k => k + 1)}
-              className="w-full mt-lg py-sm border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant font-body-md text-[14px] hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-xs"
-            >
-              <span className="material-symbols-outlined text-[18px]">refresh</span>
-              {tr.community.refresh}
-            </button>
           </>
         )}
+
       </main>
 
-      {/* Floating share FAB */}
+      {/* Floating action button */}
       <div className="fixed bottom-20 right-margin-mobile md:right-margin-desktop z-20">
-        <button
-          onClick={() => setShareOpen(true)}
-          className="w-14 h-14 rounded-full bg-tertiary text-on-tertiary shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
-          title={tr.community.shareCTA}
-        >
-          <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
-        </button>
+        {tab === 'ideas' ? (
+          <button
+            onClick={() => setIdeaShareOpen(true)}
+            className="w-14 h-14 rounded-full bg-secondary text-on-secondary shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            title={tr.community.shareIdeaCTA}
+          >
+            <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => setShareOpen(true)}
+            className="w-14 h-14 rounded-full bg-tertiary text-on-tertiary shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            title={tr.community.shareCTA}
+          >
+            <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
+          </button>
+        )}
       </div>
 
       {/* Mobile Bottom Nav */}
@@ -230,6 +361,14 @@ export function Community({ language, onBack, onNavigate }) {
           language={language}
           onPosted={handlePosted}
           onClose={() => setShareOpen(false)}
+        />
+      )}
+
+      {ideaShareOpen && (
+        <ShareIdea
+          language={language}
+          onPosted={handleIdeaPosted}
+          onClose={() => setIdeaShareOpen(false)}
         />
       )}
     </div>

@@ -467,6 +467,111 @@ Write an encouraging summary ENTIRELY in ${lang} — do not use any other langua
   } catch (err) { throw wrapError(err); }
 }
 
+// ── Generate a buildable project from a student's free-text idea ─────────────
+export async function generateIdeaProject(ideaDescription, studentData, language) {
+  const lang = resolveLang(language);
+
+  // Accept either a full studentData object or a legacy budget string
+  const isObj = studentData && typeof studentData === 'object';
+  const grade    = isObj ? (studentData.grade    || '68')   : '68';
+  const budget   = isObj ? (studentData.budget   || 'low')  : (studentData || 'low');
+  const personalInterests = isObj ? (studentData.personalInterests || '') : '';
+
+  const gradeLabel  = GRADE_LABELS[grade]  || grade;
+  const budgetLabel = BUDGET_LABELS[budget] || budget;
+  const tier        = TIER_RULES[gradeTier(grade)];
+
+  const system = `You are BuildIt, a creative STEM mentor for K-12 students. A student shared a project idea — turn it into ONE fully fleshed-out, hands-on maker project perfectly calibrated for their grade level.
+
+FEASIBILITY RULES — mandatory for every project:
+1. 100% completable at home within the stated budget by a single student working alone.
+2. Must produce a REAL, TANGIBLE outcome the student can hold, show, or demonstrate — not a report, not a presentation, not a plan.
+3. CHALLENGE LEVEL: ${tier.note}
+4. Never suggest projects requiring lab equipment, school/makerspace facilities, or specialized software licenses.
+
+SAFETY RULES — non-negotiable:
+1. NEVER disassemble any device, appliance, or gadget to extract components.
+2. NEVER involve mains/wall electricity, soldering, open flames, or hazardous chemicals.
+3. Materials must be household items or inexpensive store-bought items listed with store type and price.
+4. Tools scale with age: K–5 use only scissors, ruler, hole punch. 6–8 may add low-temp hot glue gun and screwdriver. 9–12 may add X-Acto knife, multimeter, and battery-powered breadboard electronics (NO soldering, NO mains power).
+
+HOW TO WRITE STEPS — quality rules:
+1. Each step is a natural paragraph of 90–130 words. Write like a knowledgeable older student sitting beside them.
+2. Be surgically specific: exact measurements, exact quantities, exact technique.
+3. Weave the STEM insight directly into the instruction — never use labels like "Why it works:". Blend it naturally.
+4. Include one concrete analogy or real-world example woven naturally into the prose.
+5. End each step with a natural observation of what success looks like.
+6. NEVER write vague actions like "test your project" — every verb must be specific and actionable.
+
+LANGUAGE: Write every word of your JSON output in ${lang}. Output ONLY raw JSON — no markdown, no code fences.`;
+
+  const user = `Student's idea: "${ideaDescription}"
+Grade level: ${gradeLabel}
+Budget: ${budgetLabel}${personalInterests ? `\nStudent interests: ${personalInterests}` : ''}
+
+Turn this idea into ONE fully fleshed-out project. Return exactly this JSON:
+{
+  "title": "Specific, catchy project title that directly references the student's idea",
+  "hook": "2 exciting sentences about what they'll build and the surprising STEM concept behind it",
+  "category": "science | technology | engineering | math | art",
+  "stemConcepts": ["concept1", "concept2", "concept3"],
+  "materials": ["specific item with quantity (free – at home)", "purchasable item – store type, ~$X"],
+  "steps": [
+    "Step 1 – Title: full natural teaching paragraph (90–130 words)",
+    "Step 2 – Title: ...",
+    "Step 3 – Title: ...",
+    "Step 4 – Title: ...",
+    "Step 5 – Title: ..."${tier.steps > 5 ? `,\n    "Step 6 – Title: ..."` : ''}${tier.steps > 6 ? `,\n    "Step 7 – Title: ..."` : ''}${tier.steps > 7 ? `,\n    "Step 8 – Title: ..."` : ''}
+  ],
+  "estimatedCost": "$X–$X",
+  "estimatedTime": "X–X minutes"
+}`;
+
+  try {
+    const completion = await chatCompletion({
+      model: TEXT_MODEL,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+      response_format: { type: 'json_object' },
+      max_tokens: 3500,
+      temperature: 0.85,
+    });
+
+    const parsed = JSON.parse(completion.choices[0].message.content);
+    if (!parsed.title || !parsed.steps?.length) throw new Error('PARSE_ERROR');
+    return parsed;
+  } catch (err) {
+    if (err.message === 'PARSE_ERROR') throw err;
+    throw wrapError(err);
+  }
+}
+
+// ── Validate a community project idea for feasibility ───────────────────────
+export async function validateIdea(ideaTitle, description) {
+  try {
+    const completion = await chatCompletion({
+      model: TEXT_MODEL,
+      messages: [{
+        role: 'user',
+        content: `A K-12 student wants to share this project idea with the BuildIt community:
+Title: "${ideaTitle}"
+Description: "${description}"
+
+Check two things:
+1. Is it physically buildable by a student at home using common household items or inexpensive store supplies (under $50)? It does not need to exist yet — just needs to be genuinely achievable.
+2. Is it safe and school-appropriate?
+
+Return ONLY: {"approved": true or false, "reason": "if not approved — one brief, encouraging sentence telling them exactly what to change to make the idea more buildable. Empty string if approved."}`,
+      }],
+      response_format: { type: 'json_object' },
+      max_tokens: 120,
+      temperature: 0,
+    });
+    return JSON.parse(completion.choices[0].message.content);
+  } catch {
+    return { approved: true, reason: '' };
+  }
+}
+
 // ── Moderate community post content before publishing ───────────────────────
 export async function moderateContent(caption, projectTitle) {  try {
     const completion = await chatCompletion({
