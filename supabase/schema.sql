@@ -27,6 +27,11 @@ create index if not exists community_posts_created_at_idx
 -- Tighten these later if you add moderation or auth.
 alter table public.community_posts enable row level security;
 
+-- Table-level grants. A raw `create table` does NOT grant the anon/authenticated
+-- roles access the way the dashboard table editor does, so grant explicitly.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update on public.community_posts to anon, authenticated;
+
 drop policy if exists "anon can read approved posts"  on public.community_posts;
 drop policy if exists "anon can insert posts"          on public.community_posts;
 drop policy if exists "anon can update posts (likes)"  on public.community_posts;
