@@ -45,6 +45,7 @@ export function Header({ language, studentLanguage, onToggleLanguage, view, onNa
       <nav className="hidden md:flex gap-6 items-center">
         {navLink('form', tr.nav.discover)}
         {navLink('saved', tr.nav.myProjects)}
+        {navLink('community', tr.nav.gallery)}
       </nav>
 
       {showToggle && (
